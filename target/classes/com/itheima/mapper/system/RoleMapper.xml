@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.system.RoleMapper">
+    <!--配置实体类属性和数据库表中列的对应关系-->
+    <resultMap id="BaseResultMap" type="com.itheima.domain.system.Role">
+        <id column="id"  property="id"/>
+        <result column="roleName"  property="roleName"/>
+        <result column="roleDesc"  property="roleDesc"/>
+    </resultMap>
+
+    <!--配置查询的列名公共SQL语句-->
+    <sql id="Base_Column_List">
+       id, roleName,roleDesc
+    </sql>
+
+    <!--配置查询所有，带条件-->
+    <select id="findAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from role
+    </select>
+
+    <!--配置根据id批量删除-->
+    <delete id="delete" parameterType="list">
+        delete from role
+        <where>
+            <!-- 遍历数组 传入一个数组    从 id in( 开始 , 到)结束 起别名为id  用逗号分隔-->
+            <foreach collection="array" open="id in(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+
+    <!--新增方法-->
+    <insert id="save" parameterType="com.itheima.domain.system.Role">
+        insert into role (id, roleName, roleDesc)
+        values (#{id}, #{roleName}, #{roleDesc})
+    </insert>
+
+
+
+
+    <!--配置根据ID查询-->
+    <select id="findById" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/> 
+        from role 
+        where id = #{id} 
+    </select>
+
+    <!--配置全字段更新，当提供的数据为null时，数据库数据会被更新为null-->
+    <update id="update" parameterType="com.itheima.domain.system.Role">
+        update role
+        set roleName = #{roleName},
+        roleDesc = #{roleDesc},
+        where id = #{id}
+    </update>
+
+
+
+
+
+
+    <!--配置根据roleId删除资源权限关系     把现有的关系全部取消掉-->
+    <delete id="deleteRolePermission" parameterType="String">
+        delete from role_permission
+        where roleId = #{roleId}
+    </delete>
+
+
+    <!--配置增加资源权限关系   增加新的关系-->
+   <!-- <insert id="saveRolePermission" parameterType="map">
+        insert into role_Permission  (roleId,permissionId)
+        values (#{roleId}, #{permissionId})
+    </insert>-->
+
+
+    <!--配置根据用户ID查询其对应的所有角色-->
+    <select id="findAllRoleByUsersId" parameterType="String" resultMap="BaseResultMap">
+    select id,roleName,roleDesc  from role
+    where role.id in (select roleId from users_role where userId=#{uid})
+    </select>
+
+
+    <!-- 根据用户ID查询所有的角色信息 flag标记了一个状态信息,表示如果跟我的角色有关就是被选中-->
+    <select id="findByIdForRole" resultType="role" parameterType="string">
+    SELECT distinct
+        role.id,
+        role.roleName,
+        role.roleDesc,
+
+    case
+       when role.id in (select roleId from users_role where userId=#{uid})
+       then 1
+       else 0
+       end  as flag
+    FROM
+        role
+
+</select>
+
+    <!--<delete id="deleteRolePermission" parameterType="string">
+        delete from role_permission where roleId=#{roleId}
+    </delete>-->
+
+    <insert id="saveRolePermission" >
+        insert into role_permission (roleId,permissionId) values (#{roleId},#{permissionId})
+    </insert>
+</mapper>

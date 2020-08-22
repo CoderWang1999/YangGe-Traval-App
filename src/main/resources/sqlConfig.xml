@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--引入外部资源配置文件-->
+    <properties resource="db.properties"/>
+    <!--日志-->
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+
+    <!--别名配置-->
+    <typeAliases>
+        <package name="com.itheima.domain"/>
+    </typeAliases>
+
+    <!--集成分页助手插件-->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"/>
+    </plugins>
+    <!--环境配置-->
+    <environments default="mysql">
+        <environment id="mysql">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <!--连接数据库四大基本特征-->
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.pwd}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!--指定映射配置文件位置-->
+    <mappers>
+        <package name="com.itheima.mapper"/>
+    </mappers>
+</configuration>

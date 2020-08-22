@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.system.SysLogMapper">
+<resultMap id="syslogMap" type="syslog">
+    <id column="ID" property="id"/>
+    <result column="visit_time" property="visitTimeStr"/>
+    <result column="username" property="username"/>
+    <result column="ip" property="ip"/>
+    <result column="url" property="url"/>
+    <result column="execution_time" property="executionTime"/>
+    <result column="method" property="method"/>
+</resultMap>
+
+
+    <!--新增操作-->
+    <insert id="save" parameterType="syslog">
+        insert into syslog (id,visit_time, username,ip,url,execution_time,method)
+            values
+             (#{id},#{visitTimeStr},#{username},#{ip},#{url},#{executionTime},#{method})
+
+    </insert>
+
+
+    <select id="findAll" resultMap="syslogMap">
+        select * from  syslog
+    </select>
+
+
+    <delete id="deleteById" parameterType="list">
+        delete from syslog
+        <where>
+            <foreach collection="array" open=" ID in ( " close=" )" separator= ","  item="id" >
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+<!--    模糊查询-->
+
+    <select id="findLikeTime" parameterType="string" resultMap="syslogMap">
+        SELECT * FROM syslog WHERE visit_time LIKE #{str}
+        order  by visit_time desc
+    </select>
+
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.system.PermissionMapper">
+    <resultMap id="permissionMap" type="permission">
+        <id column="id" property="id"/>
+        <result column="permissionName" property="permissionName"/>
+        <result column="url" property="url"/>
+
+        <collection property="roles" ofType="role">
+
+        </collection>
+    </resultMap>
+    <select id="findAll" resultMap="permissionMap">
+        select * from permission
+    </select>
+
+    <insert id="save" parameterType="permission">
+        insert into permission values (#{id},#{permissionName},#{url})
+    </insert>
+
+    <delete id="deleteByIds" parameterType="list">
+        delete from permission
+        <where>
+            <foreach collection="array" open="id in (" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+    <delete id="deleteById" parameterType="String">
+        delete from permission where id=#{id}
+    </delete>
+
+    <select id="query" parameterType="String" resultMap="permissionMap">
+        select * from permission
+        where permissionName
+        like concat(concat("%",#{name}),"%")
+    </select>
+
+
+
+
+
+    <select id="findAllPermissionByRoleId" parameterType="String" resultType="permission">
+        select permission.id,
+                permission.permissionName,
+                permission.url,
+                case
+                when   permission.id in (select permissionId from role_permission where  roleId = #{roleId})
+                then    '1'
+                else    '0'
+                end  as flag
+                from
+                    permission
+    </select>
+
+
+
+</mapper>

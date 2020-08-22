@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itheima.mapper.system.UserMapper">
+    <resultMap id="userMap1" type="user">
+        <id property="id" column="id"/>
+    </resultMap>
+
+    <select id="findUserByUsernameandPwd" parameterType="string" resultMap="userMap1">
+        SELECT
+        users.id
+        FROM
+        users
+        WHERE
+        users.username = #{username} AND
+        users.`PASSWORD` = #{password};
+    </select>
+
+    <select id="findUserByEmailandPwd" parameterType="string" resultMap="userMap1">
+        SELECT
+        users.id
+        FROM
+        users
+        WHERE
+        users.email = #{email} AND
+        users.`PASSWORD` = #{password};
+    </select>
+    
+    <select id="findPermissionByUid" parameterType="string" resultType="permission">
+        SELECT
+        permission.id,
+        permission.permissionName,
+        permission.url
+        FROM
+        users
+        INNER JOIN users_role ON users_role.userId = users.id
+        INNER JOIN role ON users_role.roleId = role.id
+        INNER JOIN role_permission ON role_permission.roleId = role.id
+        INNER JOIN permission ON role_permission.permissionId = permission.id
+        WHERE
+        users.id = #{uid}
+    </select>
+
+    <resultMap id="userMap" type="user">
+        <result column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="email" property="email"/>
+        <result column="PASSWORD" property="password"/>
+        <result column="phoneNum" property="phoneNum"/>
+        <result column="STATUS" property="status"/>
+        <!--<result column="" property="statusStr"/>-->
+
+    </resultMap>
+
+
+    <!--查询所有-->
+    <select id="findAll" resultMap="userMap">
+        select * from users
+    </select>
+    <!--添加用户-->
+    <insert id="save" parameterType="user">
+        insert into users(id,email,username,PASSWORD,phoneNum,STATUS)
+         values (#{id},#{email},#{username},#{password},#{phoneNum},#{status})
+    </insert>
+    <!--批量删除-->
+    <delete id="deleteByIds" parameterType="list">
+        delete from users
+        <where>
+            <foreach collection="array" open="id in (" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+    <!--通过id删除觉得的模块-->
+    <delete id="deleteRoleById" parameterType="string">
+        delete from users_role where userId=#{uid}
+    </delete>
+
+    <!--添加role与module-->
+    <insert id="saveRole">
+        insert into users_role values (#{uid},#{rId})
+    </insert>
+
+
+    <!--通过id查询用户-->
+    <select id="findUserById" parameterType="string" resultType="user">
+        select * from users where id=#{uid}
+    </select>
+
+    <!--模糊查询名字-->
+    <select id="findAllLikeByName" parameterType="string" resultMap="userMap">
+        SELECT * FROM users
+        WHERE  username like #{username}
+    </select>
+
+
+    <!--通过id修改状态-->
+    <update id="updateUserStatus" parameterType="user">
+    update users set STATUS=#{status} where id=#{id}
+</update>
+
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.basedata.ProductMapper">
+    <resultMap id="productMap" type="product">
+        <id property="id" column="id" />
+        <result column="productNum" property="productNum"/>
+        <result column="productName" property="productName" />
+        <result column="cityName" property="cityName"/>
+        <result column="DepartureTime" property="departureTime"/>
+        <result column="productPrice" property="productPrice"/>
+        <result column="productDesc" property="productDesc"/>
+        <result column="productStatus" property="productStatus"/>
+    </resultMap>
+    <select id="findAll" resultMap="productMap">
+        select * from product
+    </select>
+
+    <insert id="save" parameterType="product">
+        insert into product values (#{id},#{productNum},#{productName},#{cityName},#{departureTime},
+        #{productPrice},#{productDesc},#{productStatus});
+    </insert>
+
+    <delete id="deleteById" parameterType="list">
+        delete from product
+        <where>
+            <foreach collection="array" open="id in(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+    <select id="findById" parameterType="string" resultMap="productMap">
+        select * from product where id=#{id}
+    </select>
+
+    <update id="update" parameterType="product" >
+        update product set productNum=#{productNum},productName=#{productName},cityName=#{cityName},
+        DepartureTime=#{departureTime},productPrice=#{productPrice},productDesc=#{productDesc},
+        productStatus=#{productStatus}  where id=#{id}
+    </update>
+
+    <update id="startUpdate" parameterType="list">
+        update product set  productStatus=1
+        <where>
+            <foreach collection="array" open="id in(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </update>
+
+    <update id="closeUpdate" parameterType="list">
+        update product set  productStatus=0
+        <where>
+            <foreach collection="array" open="id in(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </update>
+
+    <select id="search" parameterType="String">
+        select * from product where ProductName like #{word}
+    </select>
+</mapper>

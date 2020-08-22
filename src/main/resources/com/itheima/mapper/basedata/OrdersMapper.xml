@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--映射配置文件：配置statement对象-->
+<mapper namespace="com.itheima.mapper.basedata.OrdersMapper">
+    <resultMap id="Map" type="Orders">
+        <id column="id" property="id"/>
+        <result column="orderNum" property="orderNum"/>
+        <result column="orderTime" property="orderTime"/>
+        <result column="orderStatus" property="orderStatus"/>
+        <result column="peopleCount" property="peopleCount"/>
+        <result column="payType" property="payType"/>
+        <result column="orderDesc" property="orderDesc"/>
+
+        <association property="product" javaType="Product">
+            <id column="id" property="id"/>
+            <result column="productName" property="productName"/>
+            <result column="productPrice" property="productPrice"/>
+            <result column="productNum" property="productNum"/>
+            <result column="cityName" property="cityName"/>
+            <result column="DepartureTime" property="departureTime"/>
+            <result column="productDesc" property="productDesc"/>
+            <result column="productStatus" property="productStatus"/>
+        </association>
+
+        <association property="member" javaType="Member">
+            <id column="id" property="id"/>
+            <result column="NAME" property="name"/>
+            <result column="nickname" property="nickname"/>
+            <result column="phoneNum" property="phoneNum"/>
+            <result column="email" property="email"/>
+        </association>
+
+        <collection property="travellers" ofType="Traveller">
+            <id column="id" property="id"/>
+            <result column="NAME" property="name"/>
+            <result column="sex" property="sex"/>
+            <result column="phoneNum" property="phoneNum"/>
+            <result column="credentialsType" property="credentialsType"/>
+            <result column="credentialsNum" property="credentialsNum"/>
+            <result column="travellerType" property="travellerType"/>
+        </collection>
+    </resultMap>
+
+    <!--查询所有订单信息-->
+    <select id="findAll" resultMap="Map">
+        select orders.*,product.*
+        from orders
+        left join product
+        on orders.productId = product.id
+    </select>
+
+    <!--批量删除-->
+    <delete id="deleteByids" parameterType="list">
+        DELETE FROM orders
+        <where>
+            <foreach collection="array" item="id" separator="," open="id in (" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+    <!--批量删除order_traveller表中对应的订单id-->
+    <delete id="deleteByorderIds" parameterType="list">
+        DELETE FROM order_traveller
+        <where>
+            <foreach collection="array" item="id" separator="," open="orderId in (" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+
+    <resultMap id="map" type="Orders">
+        <result column="orderNum" property="orderNum"/>
+        <result column="orderTime" property="orderTime"/>
+        <result column="peopleCount" property="peopleCount"/>
+        <result column="payType" property="payType"/>
+        <result column="orderDesc" property="orderDesc"/>
+
+        <association property="product" javaType="Product">
+            <result column="productName" property="productName"/>
+            <result column="productPrice" property="productPrice"/>
+            <result column="cityName" property="cityName"/>
+            <result column="DepartureTime" property="departureTime"/>
+        </association>
+
+        <association property="member" javaType="Member">
+            <result column="mn" property="name"/>
+            <result column="nickname" property="nickname"/>
+            <result column="mp" property="phoneNum"/>
+            <result column="email" property="email"/>
+        </association>
+
+        <collection property="travellers" ofType="Traveller">
+            <result column="tn" property="name"/>
+            <result column="sex" property="sex"/>
+            <result column="tp" property="phoneNum"/>
+            <result column="credentialsType" property="credentialsType"/>
+            <result column="credentialsNum" property="credentialsNum"/>
+        </collection>
+    </resultMap>
+    <!--根据订单id查询-->
+    <select id="findById" parameterType="string" resultMap="map">
+        SELECT
+        orders.orderNum,
+        orders.orderTime,
+        orders.peopleCount,
+        orders.orderDesc,
+        orders.payType,
+        product.productName,
+        product.cityName,
+        product.DepartureTime,
+        product.productPrice,
+        member.NAME mn,
+        member.nickname,
+        member.phoneNum mp,
+        member.email,
+        traveller.NAME tn,
+        traveller.sex,
+        traveller.phoneNum tp,
+        traveller.credentialsType,
+        traveller.credentialsNum
+        FROM
+        orders
+        INNER JOIN product ON orders.productId = product.id
+        INNER JOIN order_traveller ON order_traveller.orderId = orders.id
+        INNER JOIN traveller ON order_traveller.travellerId = traveller.id
+        INNER JOIN member ON orders.memberId = member.id
+        WHERE
+        orders.id=#{id}
+    </select>
+    <!--根据产品名称模糊查询-->
+    <select id="findLikePname" parameterType="string" resultMap="Map">
+        select orders.*,product.*
+        from orders
+        left join product
+        on orders.productId = product.id
+        where productName LIKE #{pname}
+    </select>
+</mapper>
